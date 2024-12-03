@@ -1,34 +1,27 @@
 from sys import stdin
 
 
-state = None
+transitions = {
+    "start": "m",
+    "m":     "u",
+    "u":     "l",
+    "l":     "(",
+    "(":     "x",
+    "x":     "x",
+    ",":     "y",
+    "y":     "y",
+    ")":     "mul",
+}
+
+state = "start"
 x = ""
 y = ""
 sum = 0
 
 for c in stdin.read():
+    state = transitions[state]
     match state:
-        case None:
-            if c == "m":
-                state = "m"
-            else:
-                state = None
-        case "m":
-            if c == "u":
-                state = "u"
-            else:
-                state = None
-        case "u":
-            if c == "l":
-                state = "l"
-            else:
-                state = None
-        case "l":
-            if c == "(":
-                state = "("
-            else:
-                state = None
-        case "(":
+        case "x":
             if c.isdigit():
                 x += c
             elif c == ",":
@@ -37,8 +30,8 @@ for c in stdin.read():
             else:
                 x = ""
                 y = ""
-                state = None
-        case ",":
+                state = "start"
+        case "y":
             if c.isdigit():
                 y += c
             elif c == ")":
@@ -47,14 +40,18 @@ for c in stdin.read():
             else:
                 x = ""
                 y = ""
-                state = None
-        case ")":
+                state = "start"
+        case "mul":
             sum += x * y
             x = ""
             y = ""
             if c == "m":
                 state = "m"
             else:
-                state = None
+                state = "start"
+        case _:
+            if c != state:
+                state = "start"
+    
             
 print(sum)
