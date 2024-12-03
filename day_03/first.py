@@ -1,57 +1,68 @@
 from sys import stdin
 
 
-transitions = {
-    "start": "m",
-    "m":     "u",
-    "u":     "l",
-    "l":     "(",
-    "(":     "x",
-    "x":     "x",
-    ",":     "y",
-    "y":     "y",
-    ")":     "mul",
-}
-
-state = "start"
-x = ""
-y = ""
-sum = 0
-
-for c in stdin.read():
-    state = transitions[state]
-    match state:
-        case "x":
-            if c.isdigit():
-                x += c
-            elif c == ",":
-                x = int(x)
-                state = ","
-            else:
-                x = ""
-                y = ""
-                state = "start"
-        case "y":
-            if c.isdigit():
-                y += c
-            elif c == ")":
-                y = int(y)
-                state = ")"
-            else:
-                x = ""
-                y = ""
-                state = "start"
-        case "mul":
-            sum += x * y
-            x = ""
-            y = ""
-            if c == "m":
-                state = "m"
-            else:
-                state = "start"
-        case _:
-            if c != state:
-                state = "start"
+def parse_any(string):
+    if len(string) > 0:
+        return (string[0], string[1:])
+    else:
+        return (False, string)
     
-            
+
+def parse_literal(literal, string):
+    if string.startswith(literal):
+        return (True, string[len(literal):])
+    else:
+        return (False, string)
+
+
+def parse_int(string):
+    i = 1
+    s = ""
+    while i < len(string) and string[:i].isdigit():
+        s += string[i - 1]
+        i += 1
+    if len(s) > 0:
+        return (int(s), string[(i-1):])
+    else:
+        return (False, string)
+                
+
+def parse_mul(string):
+    (ok, rest) = parse_literal("mul(", string)
+    if not ok:
+        return (False, string)
+
+    (x, rest) = parse_int(rest)
+    if not x:
+        return (False, string)
+    
+    (ok, rest) = parse_literal(",", rest)
+    if not ok:
+        return (False, string)
+
+    (y, rest) = parse_int(rest)
+    if not y:
+        return (False, string)
+
+    (ok, rest) = parse_literal(")", rest)
+    if not ok:
+        return (False, string)
+    
+    return (x * y, rest)
+
+
+def parse_sum(string):
+    sum = 0
+    rest = string
+    while True:
+        (p, rest) = parse_mul(rest)
+        if p:
+            sum += p
+        else:
+            (ok, rest) = parse_any(rest)
+            if not ok:
+                return (sum, "")
+        
+
+(sum, _) = parse_sum(stdin.read())
 print(sum)
