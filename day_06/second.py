@@ -32,14 +32,14 @@ for row, line in enumerate(stdin):
                 original_guard = (col+row*1j, -1+0j)
 
 
-visited_without_extra_obsts = set()
+visited_without_extra_obsts = {}
 guard = original_guard
 
 while True:
     position, heading = guard
     if 0 < position.real < width and 0 < position.imag < height:
-        if position != original_guard:
-            visited_without_extra_obsts.add(position)
+        if position != original_guard and position not in visited_without_extra_obsts:
+            visited_without_extra_obsts[position] = heading
     else:
         break
 
@@ -52,9 +52,9 @@ while True:
 
 in_a_loop = 0
 
-for point in visited_without_extra_obsts:
-    guard = original_guard
-    obstacles.add(point)
+for start_position, start_heading in visited_without_extra_obsts.items():
+    guard = (start_position - start_heading, start_heading)
+    obstacles.add(start_position)
     visited = {}
 
     while True:
@@ -75,7 +75,7 @@ for point in visited_without_extra_obsts:
         else:
             guard = (next_point, heading)
 
-    obstacles.remove(point)
+    obstacles.remove(start_position)
 
 
 print(in_a_loop)
