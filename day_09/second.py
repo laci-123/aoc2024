@@ -86,16 +86,16 @@ def defragment(disk):
         file = file.prev
 
 
-def pretty_print(disk):
-    s = ""
-    node = disk.first
-    while node:
-        if node.value.id == -1:
-            s += "." * node.value.length
-        else:
-            s += str(node.value.id) * node.value.length
-        node = node.next
-    return s
+# def pretty_print(disk):
+#     s = ""
+#     node = disk.first
+#     while node:
+#         if node.value.id == -1:
+#             s += "." * node.value.length
+#         else:
+#             s += str(node.value.id) * node.value.length
+#         node = node.next
+#     return s
 
 
 def checksum(disk):
@@ -116,7 +116,5 @@ def checksum(disk):
 
 line = [int(x) for x in stdin.read().strip()]
 disk = decompress(line)
-# print(pretty_print(disk))
 defragment(disk)
-# print(pretty_print(disk))
 print(checksum(disk))
